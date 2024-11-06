@@ -1,0 +1,6 @@
+@DogHouse_HostAddress = http://localhost:5191
+
+GET {{DogHouse_HostAddress}}/ping/
+Accept: application/json
+
+###
