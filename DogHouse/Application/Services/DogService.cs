@@ -1,6 +1,7 @@
 ﻿using Ardalis.Result;
 using Ardalis.Result.FluentValidation;
 using AutoMapper;
+using DogHouse.Application.Common;
 using DogHouse.Application.Common.Interfaces;
 using DogHouse.Application.Repositories;
 using DogHouse.Domain.DTOs;
@@ -39,11 +40,11 @@ namespace DogHouse.Application.Services
             return mapper.Map<DogDto>(newDog); ;
         }
 
-        public async Task<Result<List<DogDto>>> GetDogsAsync(Dictionary<string, string> attributes, int pageNumber, int pageSize)
+        public async Task<Result<IReadOnlyList<DogDto>>> GetDogsAsync(DogFitlerDto filter, int pageNumber, int pageSize)
         {
-            var dogs = await dogRepository.GetAllDogsAsync(attributes, pageNumber, pageSize);
+            var dogs = await dogRepository.GetAllDogsAsync(filter, pageNumber, pageSize);
             var dogDtos = mapper.Map<List<DogDto>>(dogs);
-            return Result<List<DogDto>>.Success(dogDtos);
+            return dogDtos;
         }
     }
 }

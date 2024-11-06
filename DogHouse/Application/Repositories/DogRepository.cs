@@ -1,4 +1,5 @@
-﻿using DogHouse.Domain.Entities;
+﻿using DogHouse.Application.Common;
+using DogHouse.Domain.Entities;
 using DogHouse.Infrastructure;
 using DogHouse.Infrastructure.Interfaces;
 using Microsoft.EntityFrameworkCore;
@@ -26,20 +27,20 @@ namespace DogHouse.Application.Repositories
             return await _context.Dogs.AnyAsync(d => d.Name == name);
         }
 
-        public async Task<IEnumerable<Dog>> GetAllDogsAsync(Dictionary<string, string> attributes, int pageNumber, int pageSize)
+        public async Task<IEnumerable<Dog>> GetAllDogsAsync(DogFitlerDto filter, int pageNumber, int pageSize)
         {
             var query = _context.Dogs.AsQueryable();
 
-            if (attributes != null && attributes.Any())
+           if (filter.Attributes != null && filter.Orders != null)
             {
-                foreach (var attribute in attributes)
+                for (int i = 0; i < filter.Attributes.Count; i++)
                 {
-                    query = attribute.Key.ToLower() switch
+                    query = filter.Attributes[i].ToLower() switch
                     {
-                        "name" => attribute.Value == "desc" ? query.OrderByDescending(d => d.Name) : query.OrderBy(d => d.Name),
-                        "color" => attribute.Value == "desc" ? query.OrderByDescending(d => d.Colors) : query.OrderBy(d => d.Colors),
-                        "tail_length" => attribute.Value == "desc" ? query.OrderByDescending(d => d.TailLength) : query.OrderBy(d => d.TailLength),
-                        "weight" => attribute.Value == "desc" ? query.OrderByDescending(d => d.Weight) : query.OrderBy(d => d.Weight),
+                        "name" => filter.Orders[i] == "desc" ? query.OrderByDescending(d => d.Name) : query.OrderBy(d => d.Name),
+                        "color" => filter.Orders[i] == "desc" ? query.OrderByDescending(d => d.Colors) : query.OrderBy(d => d.Colors),
+                        "tail_length" => filter.Orders[i] == "desc" ? query.OrderByDescending(d => d.TailLength) : query.OrderBy(d => d.TailLength),
+                        "weight" => filter.Orders[i] == "desc" ? query.OrderByDescending(d => d.Weight) : query.OrderBy(d => d.Weight),
                         _ => query
                     };
                 }
