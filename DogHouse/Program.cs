@@ -15,7 +15,7 @@ using System.Threading.RateLimiting;
 
 namespace DogHouse
 {
-    public static class Program
+    public class Program
     {
         public static void Main(string[] args)
         {
@@ -30,15 +30,15 @@ namespace DogHouse
             builder.Services.AddScoped<IDogService,DogService>();
             builder.Services.AddScoped<IValidator<DogDto>, DogValidator>();
 
-            builder.Services.Configure<RateLimitOptions>(builder.Configuration.GetSection("RateLimitingSettings"));
             var rateLimitingSettings = builder.Configuration.GetSection("RateLimitingSettings").Get<RateLimitOptions>();
             builder.Services.AddRateLimiter(options =>
             {                
                 if (rateLimitingSettings == null)
                 {
-                    builder.Logging.AddConsole().AddFilter(level => level >= LogLevel.Warning);
+                    Console.WriteLine("Rate limiting settings not found in configuration. Rate limiting will not be applied.");
                     return;
                 }
+                options.RejectionStatusCode  = StatusCodes.Status429TooManyRequests;
                 options.AddFixedWindowLimiter("Fixed", limiterOptions =>
                 {
                     limiterOptions.Window = rateLimitingSettings.Window;
