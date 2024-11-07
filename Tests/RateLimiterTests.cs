@@ -7,40 +7,19 @@ using System.Net;
 namespace Tests
 {
     [TestClass]
-    public class RateLimiterTests
+    public class RateLimiterTests : BaseApiTest
     {
-        private HttpClient _client;
-        private WebApplicationFactory<Program> _factory;
         private int _permitLimit;
 
         [TestInitialize]
         public void Setup()
         {
-            _factory = new WebApplicationFactory<Program>()
-              .WithWebHostBuilder(builder =>
-              {
-                  builder.ConfigureAppConfiguration((context, config) =>
-                  {
-                      config.AddJsonFile("appsettings.Development.json", optional: false, reloadOnChange: true);
-                  });
-              });
-
+            BaseSetup();
             var config = new ConfigurationBuilder()
                 .AddJsonFile("appsettings.Development.json")
                 .Build();
 
             _permitLimit = config.GetSection("RateLimitingSettings").GetValue<int>("PermitLimit");
-            _client = _factory.CreateClient(new WebApplicationFactoryClientOptions
-            {
-                BaseAddress = new Uri("http://localhost:5191") // Replace with your external API URL
-            });
-        }
-
-        [TestCleanup]
-        public void Cleanup()
-        {
-            _client.Dispose();
-            _factory.Dispose();
         }
 
         [TestMethod]
@@ -49,7 +28,7 @@ namespace Tests
             // Send requests within the allowed limit
             for (int i = 0; i < 10; i++)
             {
-                var response = await _client.GetAsync("/ping");
+                var response = await Client.GetAsync("/ping");
                 Assert.AreEqual(HttpStatusCode.OK, response.StatusCode);
             }
         }
@@ -58,7 +37,7 @@ namespace Tests
         public async Task RateLimiter_ReturnsTooManyRequests_WhenLimitExceeded()
         {
             int totalRequests = _permitLimit + 5;
-            var tasks = Enumerable.Range(0, totalRequests).Select(_ => _client.GetAsync("/ping"));
+            var tasks = Enumerable.Range(0, totalRequests).Select(_ => Client.GetAsync("/ping"));
             var responses = await Task.WhenAll(tasks);
 
             var okReponsesCount = responses.Count(r => r.StatusCode == HttpStatusCode.OK);

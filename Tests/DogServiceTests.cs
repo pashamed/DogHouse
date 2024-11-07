@@ -1,12 +1,5 @@
-﻿using Ardalis.Result;
-using DogHouse.Application.Common.Interfaces;
-using DogHouse.Application.Common;
+﻿using DogHouse.Application.Common;
 using DogHouse.Domain.DTOs;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using DogHouse.Infrastructure.Interfaces;
 using Moq;
 using AutoMapper;
@@ -24,6 +17,7 @@ namespace Tests
         private Mock<IMapper> mapperMock;
         private Mock<IValidator<DogDto>> validatorMock;
         private DogService dogService;
+        private List<Dog> sampleDogs;
 
         [TestInitialize]
         public void Setup()
@@ -32,6 +26,43 @@ namespace Tests
             mapperMock = new Mock<IMapper>();
             validatorMock = new Mock<IValidator<DogDto>>();
             dogService = new DogService(dogRepositoryMock.Object, mapperMock.Object, validatorMock.Object);
+
+            sampleDogs = new List<Dog>
+            {
+                new Dog { Id = 1, Name = "Neo", Colors = new List<string> { "Red", "Amber" }, TailLength = 22.0, Weight = 32.0 },
+                new Dog { Id = 2, Name = "Jessy", Colors = new List<string> { "Black", "White" }, TailLength = 7, Weight = 30.0 },
+                new Dog { Id = 3, Name = "Max", Colors = new List<string> { "Brown" }, TailLength = 15.0, Weight = 25.0 }
+            };
+        }
+
+        [TestMethod]
+        public async Task GetDogsAsync_ReturnsFilteredDogs_WhenFilterIsApplied()
+        {
+            // Arrange
+            var filter = new DogFitlerDto
+            {
+                Attributes = new List<string> { "name" },
+                Orders = new List<string> { "asc" }
+            };
+            dogRepositoryMock.Setup(repo => repo.GetAllDogsAsync(filter, 1, 10)).ReturnsAsync(sampleDogs);
+            mapperMock.Setup(m => m.Map<List<DogDto>>(It.IsAny<List<Dog>>())).Returns(new List<DogDto>
+            {
+                new DogDto { Name = "Jessy", Colors = "Black,White", TailLength = 7, Weight = 30.0 },
+                new DogDto { Name = "Max", Colors = "Brown", TailLength = 15.0, Weight = 25.0 },
+                new DogDto { Name = "Neo", Colors = "Red,Amber", TailLength = 22.0, Weight = 32.0 }
+            });
+
+            // Act
+            var result = await dogService.GetDogsAsync(filter, 1, 10);
+
+            // Assert
+            Assert.IsNotNull(result);
+            Assert.IsTrue(result.IsSuccess);
+            var returnedDogs = result.Value;
+            Assert.AreEqual(3, returnedDogs.Count);
+            Assert.AreEqual("Jessy", returnedDogs[0].Name);
+            Assert.AreEqual("Max", returnedDogs[1].Name);
+            Assert.AreEqual("Neo", returnedDogs[2].Name);
         }
 
         [TestMethod]
@@ -104,24 +135,39 @@ namespace Tests
         }
 
         [TestMethod]
-        public async Task GetDogsAsync_ReturnsDogDtos_WhenSuccessful()
+        public async Task GetDogsAsync_ReturnsError_WhenRepositoryThrowsException()
         {
             // Arrange
             var filter = new DogFitlerDto();
             var pageNumber = 1;
             var pageSize = 10;
-            var dogs = new List<Dog> { new Dog { Id = 1, Name = "Buddy" } };
-            var dogDtos = new List<DogDto> { new DogDto { Name = "Buddy" } };
+            dogRepositoryMock.Setup(r => r.GetAllDogsAsync(filter, pageNumber, pageSize)).ThrowsAsync(new Exception("Database error"));
+
+            // Act
+            var result = await dogService.GetDogsAsync(filter, pageNumber, pageSize);
+
+            // Assert
+            Assert.IsFalse(result.IsSuccess);
+            Assert.AreEqual("An error occurred while getting dogs: Database error", result.Errors.First());
+        }
+
+        [TestMethod]
+        public async Task GetDogsAsync_ReturnsEmptyList_WhenNoDogsFound()
+        {
+            // Arrange
+            var filter = new DogFitlerDto();
+            var pageNumber = 1;
+            var pageSize = 10;
+            var dogs = new List<Dog>();
             dogRepositoryMock.Setup(r => r.GetAllDogsAsync(filter, pageNumber, pageSize)).ReturnsAsync(dogs);
-            mapperMock.Setup(m => m.Map<List<DogDto>>(dogs)).Returns(dogDtos);
+            mapperMock.Setup(m => m.Map<List<DogDto>>(dogs)).Returns(new List<DogDto>());
 
             // Act
             var result = await dogService.GetDogsAsync(filter, pageNumber, pageSize);
 
             // Assert
             Assert.IsTrue(result.IsSuccess);
-            Assert.AreEqual(1, result.Value.Count);
-            Assert.AreEqual("Buddy", result.Value.First().Name);
+            Assert.AreEqual(0, result.Value.Count);
         }
     }
 }

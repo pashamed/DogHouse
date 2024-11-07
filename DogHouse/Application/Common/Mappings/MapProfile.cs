@@ -9,12 +9,12 @@ namespace DogHouse.Application.Common.Mappings
         public MapProfile()
         {
             CreateMap<Dog, DogDto>()
-                .ForMember(dest => dest.Color, opt => opt.MapFrom(src => string.Join("&", src.Colors)));
+                .ForMember(dest => dest.Colors, opt => opt.MapFrom(src => string.Join("&", src.Colors)));
 
             CreateMap<DogDto, Dog>()
-                 .ForMember(dest => dest.Colors, opt => opt.MapFrom(src => src.Color.Contains(" & ")
-                     ? src.Color.Split(new[] { " & " }, StringSplitOptions.None)
-                     : new[] { src.Color }));
+                 .ForMember(dest => dest.Colors, opt => opt.MapFrom(src => src.Colors.Contains(" & ")
+                     ? src.Colors.Split(new[] { " & " }, StringSplitOptions.None)
+                     : new[] { src.Colors }));
         }
     }
 }

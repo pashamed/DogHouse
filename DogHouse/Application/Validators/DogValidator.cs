@@ -13,7 +13,7 @@ namespace DogHouse.Application.Validators
                 .NotEmpty().WithMessage("Name is required.")
                 .MaximumLength(50).WithMessage("Name must not exceed 50 characters.");
 
-            RuleFor(dog => dog.Color)
+            RuleFor(dog => dog.Colors)
                 .NotEmpty().WithMessage("Color is required.")
                 .MaximumLength(50).WithMessage("Color must not exceed 50 characters.");
 

@@ -39,7 +39,7 @@ namespace DogHouse.Application.Services
             {
                 var dog = mapper.Map<Dog>(dogDto);
                 var newDog = await dogRepository.AddDogAsync(dog);
-                return mapper.Map<DogDto>(newDog);
+                return Result.Created(mapper.Map<DogDto>(newDog));
             }
             catch (Exception ex)
             {

@@ -1,8 +1,6 @@
-﻿using Ardalis.Result;
-using Ardalis.Result.AspNetCore;
+﻿using Ardalis.Result.AspNetCore;
 using DogHouse.Application.Common;
 using DogHouse.Application.Common.Interfaces;
-using DogHouse.Application.Services;
 using DogHouse.Domain.DTOs;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.RateLimiting;
@@ -28,7 +26,7 @@ namespace DogHouse.Web.Controllers
         }
 
         [HttpGet("dogs")]
-        public async Task<ActionResult<IReadOnlyList<DogDto>>> GetDogs([FromQuery] string? attribute, [FromQuery] string? order, [FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 10)
+        public async Task<IResult> GetDogs([FromQuery] string? attribute, [FromQuery] string? order, [FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 10)
         {
             var attributes = attribute?.Split(',').ToList() ?? new List<string>();
             var orders = order?.Split(',').ToList() ?? new List<string>();
@@ -39,18 +37,14 @@ namespace DogHouse.Web.Controllers
                 Orders = orders
             };
             var result = await dogService.GetDogsAsync(filter, pageNumber, pageSize);
-            if (result.IsSuccess)
-            {
-                return result.ToActionResult(this);
-            }
-            return BadRequest(result.Errors);
+            return result.ToMinimalApiResult();
         }
 
         [HttpPost("dog")]
-        public async Task<ActionResult<DogDto>> CreateDog([FromBody] DogDto dogDto)
+        public async Task<IResult> CreateDog([FromBody] DogDto dogDto)
         {
             var result = await dogService.CreateDogAsync(dogDto);
-            return result.ToActionResult(this);
+            return result.ToMinimalApiResult();
         }
     }
 }

@@ -11,6 +11,7 @@ using FluentValidation;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Diagnostics.HealthChecks;
 using System.Threading.RateLimiting;
 
 namespace DogHouse
@@ -27,18 +28,18 @@ namespace DogHouse
             builder.Services.AddAutoMapper(typeof(MapProfile));
 
             builder.Services.AddScoped<IDogRepository, DogRepository>();
-            builder.Services.AddScoped<IDogService,DogService>();
+            builder.Services.AddScoped<IDogService, DogService>();
             builder.Services.AddScoped<IValidator<DogDto>, DogValidator>();
 
             var rateLimitingSettings = builder.Configuration.GetSection("RateLimitingSettings").Get<RateLimitOptions>();
             builder.Services.AddRateLimiter(options =>
-            {                
+            {
                 if (rateLimitingSettings == null)
                 {
                     Console.WriteLine("Rate limiting settings not found in configuration. Rate limiting will not be applied.");
                     return;
                 }
-                options.RejectionStatusCode  = StatusCodes.Status429TooManyRequests;
+                options.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
                 options.AddFixedWindowLimiter("Fixed", limiterOptions =>
                 {
                     limiterOptions.Window = rateLimitingSettings.Window;
@@ -52,7 +53,6 @@ namespace DogHouse
             // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();
-
             var app = builder.Build();
 
             // Apply pending migrations
