@@ -1,12 +1,12 @@
-﻿using DogHouse.Application.Common;
-using DogHouse.Domain.DTOs;
-using DogHouse.Infrastructure.Interfaces;
-using Moq;
-using AutoMapper;
-using FluentValidation;
+﻿using AutoMapper;
+using DogHouse.Application.Common;
 using DogHouse.Application.Services;
-using FluentValidation.Results;
+using DogHouse.Domain.DTOs;
 using DogHouse.Domain.Entities;
+using DogHouse.Infrastructure.Interfaces;
+using FluentValidation;
+using FluentValidation.Results;
+using Moq;
 
 namespace Tests
 {

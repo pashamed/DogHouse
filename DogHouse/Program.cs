@@ -8,10 +8,8 @@ using DogHouse.Infrastructure;
 using DogHouse.Infrastructure.Interfaces;
 using DogHouse.Web;
 using FluentValidation;
-using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Diagnostics.HealthChecks;
 using System.Threading.RateLimiting;
 
 namespace DogHouse

@@ -26,7 +26,7 @@ namespace DogHouse.Infrastructure
                 .Property(d => d.Colors)
                 .HasConversion(converter)
                 .Metadata.SetValueComparer(comparer);
-                
+
             modelBuilder.Entity<Dog>()
                 .HasIndex(d => d.Name)
                 .IsUnique();

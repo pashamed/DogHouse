@@ -1,5 +1,4 @@
 ﻿using Ardalis.Result;
-using Ardalis.Result.AspNetCore;
 using Ardalis.Result.FluentValidation;
 using AutoMapper;
 using DogHouse.Application.Common;
@@ -63,7 +62,6 @@ namespace DogHouse.Application.Services
             {
                 return Result.Error($"An error occurred while getting dogs: {ex.Message}");
             }
-
         }
     }
 }

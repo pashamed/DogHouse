@@ -22,7 +22,7 @@ namespace Tests
             dogServiceMock = new Mock<IDogService>();
             dogsController = new DogsController(dogServiceMock.Object);
 
-             var httpContext = new DefaultHttpContext();
+            var httpContext = new DefaultHttpContext();
             dogsController.ControllerContext = new ControllerContext
             {
                 HttpContext = httpContext
