@@ -31,16 +31,18 @@ namespace DogHouse.Application.Repositories
         {
             var query = _context.Dogs.AsQueryable();
 
-           if (filter.Attributes != null && filter.Orders != null)
+            if (filter.Attributes != null && filter.Attributes.Count > 0)
             {
                 for (int i = 0; i < filter.Attributes.Count; i++)
                 {
+                    string order = (filter.Orders != null && filter.Orders.Count > i) ? filter.Orders[i].ToLower() : "desc";
+
                     query = filter.Attributes[i].ToLower() switch
                     {
-                        "name" => filter.Orders[i] == "desc" ? query.OrderByDescending(d => d.Name) : query.OrderBy(d => d.Name),
-                        "color" => filter.Orders[i] == "desc" ? query.OrderByDescending(d => d.Colors) : query.OrderBy(d => d.Colors),
-                        "tail_length" => filter.Orders[i] == "desc" ? query.OrderByDescending(d => d.TailLength) : query.OrderBy(d => d.TailLength),
-                        "weight" => filter.Orders[i] == "desc" ? query.OrderByDescending(d => d.Weight) : query.OrderBy(d => d.Weight),
+                        "name" => order == "desc" ? query.OrderByDescending(d => d.Name) : query.OrderBy(d => d.Name),
+                        "color" => order == "desc" ? query.OrderByDescending(d => d.Colors) : query.OrderBy(d => d.Colors),
+                        "tail_length" => order == "desc" ? query.OrderByDescending(d => d.TailLength) : query.OrderBy(d => d.TailLength),
+                        "weight" => order == "desc" ? query.OrderByDescending(d => d.Weight) : query.OrderBy(d => d.Weight),
                         _ => query
                     };
                 }

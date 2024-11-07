@@ -1,19 +1,22 @@
-﻿using Ardalis.Result.AspNetCore;
+﻿using Ardalis.Result;
+using Ardalis.Result.AspNetCore;
 using DogHouse.Application.Common;
 using DogHouse.Application.Common.Interfaces;
 using DogHouse.Application.Services;
 using DogHouse.Domain.DTOs;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
 
 namespace DogHouse.Web.Controllers
 {
     [ApiController]
     [Route("/")]
-    public class DogController : ControllerBase
+    [EnableRateLimiting("Fixed")]
+    public class DogsController : ControllerBase
     {
         private readonly IDogService dogService;
 
-        public DogController(IDogService dogService)
+        public DogsController(IDogService dogService)
         {
             this.dogService = dogService;
         }
@@ -24,8 +27,8 @@ namespace DogHouse.Web.Controllers
             return Ok("Dogshouseservice.Version1.0.1");
         }
 
-        [HttpGet]
-        public async Task<ActionResult<IReadOnlyList<DogDto>>> GetDogs([FromQuery] string attribute, [FromQuery] string order, [FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 10)
+        [HttpGet("dogs")]
+        public async Task<ActionResult<IReadOnlyList<DogDto>>> GetDogs([FromQuery] string? attribute, [FromQuery] string? order, [FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 10)
         {
             var attributes = attribute?.Split(',').ToList() ?? new List<string>();
             var orders = order?.Split(',').ToList() ?? new List<string>();
@@ -41,6 +44,13 @@ namespace DogHouse.Web.Controllers
                 return result.ToActionResult(this);
             }
             return BadRequest(result.Errors);
+        }
+
+        [HttpPost("dog")]
+        public async Task<ActionResult<DogDto>> CreateDog([FromBody] DogDto dogDto)
+        {
+            var result = await dogService.CreateDogAsync(dogDto);
+            return result.ToActionResult(this);
         }
     }
 }

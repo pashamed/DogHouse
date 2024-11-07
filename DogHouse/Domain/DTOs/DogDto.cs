@@ -2,9 +2,8 @@
 {
     public class DogDto
     {
-        public int Id { get; set; }
-        public string Name { get; set; }
-        public string Color { get; set; }
+        public string Name { get; set; } = string.Empty;
+        public string Color { get; set; } = string.Empty;
         public double TailLength { get; set; }
         public double Weight { get; set; }
     }

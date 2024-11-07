@@ -1,9 +1,9 @@
 ﻿using Ardalis.Result;
+using Ardalis.Result.AspNetCore;
 using Ardalis.Result.FluentValidation;
 using AutoMapper;
 using DogHouse.Application.Common;
 using DogHouse.Application.Common.Interfaces;
-using DogHouse.Application.Repositories;
 using DogHouse.Domain.DTOs;
 using DogHouse.Domain.Entities;
 using DogHouse.Infrastructure.Interfaces;
@@ -35,16 +35,35 @@ namespace DogHouse.Application.Services
             {
                 return Result<DogDto>.Error("Dog with the same name already exists.");
             }
-            var dog = mapper.Map<Dog>(dogDto);
-            var newDog = await dogRepository.AddDogAsync(dog);
-            return mapper.Map<DogDto>(newDog); ;
+            try
+            {
+                var dog = mapper.Map<Dog>(dogDto);
+                var newDog = await dogRepository.AddDogAsync(dog);
+                return mapper.Map<DogDto>(newDog);
+            }
+            catch (Exception ex)
+            {
+                return Result.Error($"An error occurred while creating the dog: {ex.Message}");
+            }
         }
 
         public async Task<Result<IReadOnlyList<DogDto>>> GetDogsAsync(DogFitlerDto filter, int pageNumber, int pageSize)
         {
-            var dogs = await dogRepository.GetAllDogsAsync(filter, pageNumber, pageSize);
-            var dogDtos = mapper.Map<List<DogDto>>(dogs);
-            return dogDtos;
+            if (pageNumber <= 0 || pageSize <= 0)
+            {
+                return Result.Error("Page number and page size must be greater than 0");
+            }
+            try
+            {
+                var dogs = await dogRepository.GetAllDogsAsync(filter, pageNumber, pageSize);
+                var dogDtos = mapper.Map<List<DogDto>>(dogs);
+                return dogDtos.AsReadOnly();
+            }
+            catch (Exception ex)
+            {
+                return Result.Error($"An error occurred while getting dogs: {ex.Message}");
+            }
+
         }
     }
 }
