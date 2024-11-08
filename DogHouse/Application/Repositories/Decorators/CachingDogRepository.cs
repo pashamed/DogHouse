@@ -27,12 +27,12 @@ namespace DogHouse.Application.Repositories.Decorators
             return await _inner.DogExistsAsync(name); ;
         }
 
-        public async Task<IEnumerable<Dog>> GetAllDogsAsync(DogFitlerDto filter, int pageNumber, int pageSize)
+        public async Task<IEnumerable<Dog>> GetAllDogsAsync(DogFitlerDto filter)
         {
-            var cacheKey = $"AllDogs_{pageNumber}_{pageSize}_{string.Join(",", filter.Attributes ?? new List<string>())}_{string.Join(",", filter.Orders ?? new List<string>())}";
+            var cacheKey = $"AllDogs_{filter.PageNumber}_{filter.PageSize}_{string.Join(",", filter.Attributes ?? new List<string>())}_{string.Join(",", filter.Orders ?? new List<string>())}";
             if (!_cacheService.TryGetValue(cacheKey, out IEnumerable<Dog>? dogs))
             {
-                dogs = await _inner.GetAllDogsAsync(filter, pageNumber, pageSize);
+                dogs = await _inner.GetAllDogsAsync(filter);
                 var cacheEntryOptions = new MemoryCacheEntryOptions()
                     .SetSlidingExpiration(TimeSpan.FromMinutes(5));
                 _cacheService.Set(cacheKey, dogs, cacheEntryOptions);

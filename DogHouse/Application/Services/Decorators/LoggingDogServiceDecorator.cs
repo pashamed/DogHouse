@@ -22,14 +22,14 @@ namespace DogHouse.Application.Services.Decorators
             return result;
         }
 
-        public async Task<Result<IReadOnlyList<DogDto>>> GetDogsAsync(DogFitlerDto filter, int pageNumber, int pageSize)
+        public async Task<Result<IReadOnlyList<DogDto>>> GetDogsAsync(DogFitlerDto filter)
         {
             _logger.LogInformation("Getting dogs with filter: Attributes={Attributes}, Orders={Orders}, PageNumber={PageNumber}, PageSize={PageSize}",
                     string.Join(", ", filter.Attributes ?? new List<string>()),
                     string.Join(", ", filter.Orders ?? new List<string>()),
-                    pageNumber,
-                    pageSize);
-            var result = await _inner.GetDogsAsync(filter, pageNumber, pageSize);
+                    filter.PageNumber,
+                    filter.PageSize);
+            var result = await _inner.GetDogsAsync(filter);
             _logger.LogInformation("Dogs retrieved: {Count}", result.Value?.Count);
             return result;
         }

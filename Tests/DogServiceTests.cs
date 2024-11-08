@@ -42,9 +42,11 @@ namespace Tests
             var filter = new DogFitlerDto
             {
                 Attributes = new List<string> { "name" },
-                Orders = new List<string> { "asc" }
+                Orders = new List<string> { "asc" },
+                PageNumber = 1,
+                PageSize = 10
             };
-            dogRepositoryMock.Setup(repo => repo.GetAllDogsAsync(filter, 1, 10)).ReturnsAsync(sampleDogs);
+            dogRepositoryMock.Setup(repo => repo.GetAllDogsAsync(filter)).ReturnsAsync(sampleDogs);
             mapperMock.Setup(m => m.Map<List<DogDto>>(It.IsAny<List<Dog>>())).Returns(new List<DogDto>
             {
                 new DogDto { Name = "Jessy", Colors = "Black,White", TailLength = 7, Weight = 30.0 },
@@ -53,7 +55,7 @@ namespace Tests
             });
 
             // Act
-            var result = await dogService.GetDogsAsync(filter, 1, 10);
+            var result = await dogService.GetDogsAsync(filter);
 
             // Assert
             Assert.IsNotNull(result);
@@ -122,12 +124,14 @@ namespace Tests
         public async Task GetDogsAsync_ReturnsError_WhenInvalidPageNumberOrPageSize()
         {
             // Arrange
-            var filter = new DogFitlerDto();
-            var invalidPageNumber = 0;
-            var invalidPageSize = 0;
+            var filter = new DogFitlerDto()
+            {
+                PageNumber = 0,
+                PageSize = 0
+            };
 
             // Act
-            var result = await dogService.GetDogsAsync(filter, invalidPageNumber, invalidPageSize);
+            var result = await dogService.GetDogsAsync(filter);
 
             // Assert
             Assert.IsFalse(result.IsSuccess);
@@ -138,13 +142,15 @@ namespace Tests
         public async Task GetDogsAsync_ReturnsError_WhenRepositoryThrowsException()
         {
             // Arrange
-            var filter = new DogFitlerDto();
-            var pageNumber = 1;
-            var pageSize = 10;
-            dogRepositoryMock.Setup(r => r.GetAllDogsAsync(filter, pageNumber, pageSize)).ThrowsAsync(new Exception("Database error"));
+            var filter = new DogFitlerDto()
+            {
+                PageNumber = 1,
+                PageSize = 10
+            };
+            dogRepositoryMock.Setup(r => r.GetAllDogsAsync(filter)).ThrowsAsync(new Exception("Database error"));
 
             // Act
-            var result = await dogService.GetDogsAsync(filter, pageNumber, pageSize);
+            var result = await dogService.GetDogsAsync(filter);
 
             // Assert
             Assert.IsFalse(result.IsSuccess);
@@ -155,15 +161,19 @@ namespace Tests
         public async Task GetDogsAsync_ReturnsEmptyList_WhenNoDogsFound()
         {
             // Arrange
-            var filter = new DogFitlerDto();
+            var filter = new DogFitlerDto()
+            {
+                PageNumber = 1,
+                PageSize = 10
+            };
             var pageNumber = 1;
             var pageSize = 10;
             var dogs = new List<Dog>();
-            dogRepositoryMock.Setup(r => r.GetAllDogsAsync(filter, pageNumber, pageSize)).ReturnsAsync(dogs);
+            dogRepositoryMock.Setup(r => r.GetAllDogsAsync(filter)).ReturnsAsync(dogs);
             mapperMock.Setup(m => m.Map<List<DogDto>>(dogs)).Returns(new List<DogDto>());
 
             // Act
-            var result = await dogService.GetDogsAsync(filter, pageNumber, pageSize);
+            var result = await dogService.GetDogsAsync(filter);
 
             // Assert
             Assert.IsTrue(result.IsSuccess);

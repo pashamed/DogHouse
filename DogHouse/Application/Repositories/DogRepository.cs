@@ -27,7 +27,7 @@ namespace DogHouse.Application.Repositories
             return await _context.Dogs.AnyAsync(d => d.Name == name);
         }
 
-        public async Task<IEnumerable<Dog>> GetAllDogsAsync(DogFitlerDto filter, int pageNumber, int pageSize)
+        public async Task<IEnumerable<Dog>> GetAllDogsAsync(DogFitlerDto filter)
         {
             var query = _context.Dogs.AsQueryable();
 
@@ -48,7 +48,7 @@ namespace DogHouse.Application.Repositories
                 }
             }
 
-            return await query.Skip((pageNumber - 1) * pageSize).Take(pageSize).ToListAsync();
+            return await query.Skip((filter.PageNumber - 1) * filter.PageSize).Take(filter.PageSize).ToListAsync();
         }
 
         public async Task<Dog?> GetDogByNameAsync(string name)

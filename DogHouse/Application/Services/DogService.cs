@@ -46,15 +46,15 @@ namespace DogHouse.Application.Services
             }
         }
 
-        public async Task<Result<IReadOnlyList<DogDto>>> GetDogsAsync(DogFitlerDto filter, int pageNumber, int pageSize)
+        public async Task<Result<IReadOnlyList<DogDto>>> GetDogsAsync(DogFitlerDto filter)
         {
-            if (pageNumber <= 0 || pageSize <= 0)
+            if (filter.PageNumber <= 0 || filter.PageSize <= 0)
             {
                 return Result.Error("Page number and page size must be greater than 0");
             }
             try
             {
-                var dogs = await dogRepository.GetAllDogsAsync(filter, pageNumber, pageSize);
+                var dogs = await dogRepository.GetAllDogsAsync(filter);
                 var dogDtos = mapper.Map<List<DogDto>>(dogs);
                 return dogDtos.AsReadOnly();
             }

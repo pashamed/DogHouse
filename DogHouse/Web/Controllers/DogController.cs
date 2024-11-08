@@ -34,9 +34,11 @@ namespace DogHouse.Web.Controllers
             var filter = new DogFitlerDto
             {
                 Attributes = attributes,
-                Orders = orders
+                Orders = orders,
+                PageNumber = pageNumber,
+                PageSize = pageSize
             };
-            var result = await dogService.GetDogsAsync(filter, pageNumber, pageSize);
+            var result = await dogService.GetDogsAsync(filter);
             return result.ToMinimalApiResult();
         }
 

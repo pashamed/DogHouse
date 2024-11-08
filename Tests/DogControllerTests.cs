@@ -60,7 +60,7 @@ namespace Tests
         {
             // Arrange
             var result = Result<IReadOnlyList<DogDto>>.Success(sampleDogs);
-            dogServiceMock.Setup(s => s.GetDogsAsync(It.IsAny<DogFitlerDto>(), It.IsAny<int>(), It.IsAny<int>())).ReturnsAsync(result);
+            dogServiceMock.Setup(s => s.GetDogsAsync(It.IsAny<DogFitlerDto>())).ReturnsAsync(result);
 
             // Act
             dynamic actionResult = await dogsController.GetDogs(null, null, 1, 10);
@@ -95,7 +95,7 @@ namespace Tests
         {
             // Arrange
             var result = Result<IReadOnlyList<DogDto>>.Error("Service error");
-            dogServiceMock.Setup(s => s.GetDogsAsync(It.IsAny<DogFitlerDto>(), It.IsAny<int>(), It.IsAny<int>())).ReturnsAsync(result);
+            dogServiceMock.Setup(s => s.GetDogsAsync(It.IsAny<DogFitlerDto>())).ReturnsAsync(result);
 
             // Act
             dynamic actionResult = await dogsController.GetDogs(null, null, 1, 10);
@@ -111,7 +111,7 @@ namespace Tests
             // Arrange
             var dogDtos = new List<DogDto> { new DogDto { Name = "Buddy" } };
             var result = Result<IReadOnlyList<DogDto>>.Success(dogDtos);
-            dogServiceMock.Setup(s => s.GetDogsAsync(It.IsAny<DogFitlerDto>(), It.IsAny<int>(), It.IsAny<int>())).ReturnsAsync(result);
+            dogServiceMock.Setup(s => s.GetDogsAsync(It.IsAny<DogFitlerDto>())).ReturnsAsync(result);
 
             // Act
             dynamic actionResult = await dogsController.GetDogs("Name", "Asc", 1, 10);
@@ -129,7 +129,7 @@ namespace Tests
         {
             // Arrange
             var result = Result<IReadOnlyList<DogDto>>.Success(new List<DogDto>());
-            dogServiceMock.Setup(s => s.GetDogsAsync(It.IsAny<DogFitlerDto>(), It.IsAny<int>(), It.IsAny<int>())).ReturnsAsync(result);
+            dogServiceMock.Setup(s => s.GetDogsAsync(It.IsAny<DogFitlerDto>())).ReturnsAsync(result);
 
             // Act
             dynamic actionResult = await dogsController.GetDogs(null, null, 1, 10);

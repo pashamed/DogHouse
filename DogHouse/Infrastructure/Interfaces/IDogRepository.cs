@@ -5,7 +5,7 @@ namespace DogHouse.Infrastructure.Interfaces
 {
     public interface IDogRepository
     {
-        Task<IEnumerable<Dog>> GetAllDogsAsync(DogFitlerDto filter, int pageNumber, int pageSize);
+        Task<IEnumerable<Dog>> GetAllDogsAsync(DogFitlerDto filter);
 
         Task<Dog?> GetDogByNameAsync(string name);
 
